@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Study Guide · CISM Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#2557d6">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+</head>
+<body>
+<main class="wrap">
+  <div class="study">
+    <aside class="side">
+      <input class="search" id="q" type="search" placeholder="Search topics…" aria-label="Search topics">
+      <nav id="dnav"></nav>
+      <div class="prog card">
+        <div class="mini"><span>Overall</span><span id="pctTxt"></span></div>
+        <div class="bar"><i id="pctBar"></i></div>
+        <div class="btn-row" style="margin-top:12px"><button class="btn sm" id="expandAll">Expand all</button></div>
+      </div>
+    </aside>
+    <section id="main"></section>
+  </div>
+</main>
+<script src="data/domains.js"></script>
+<script src="data/questions-d1.js"></script><script src="data/questions-d2.js"></script><script src="data/questions-d3.js"></script><script src="data/questions-d4.js"></script>
+<script src="assets/js/core.js"></script>
+<script>
+const D = CISM_DOMAINS;
+let done = store.get("topics", {});
+let cur = 1, query = "", expandAll = false;
+const chev = '<svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>';
+
+function topicHTML(t, d) {
+  const isDone = !!done[t.id];
+  return `<div class="topic${isDone ? " done" : ""}${expandAll || query ? " open" : ""}" data-id="${t.id}">
+    <button class="t-head" aria-expanded="false"><span class="tick"></span>
+      <span class="ttl"><h3>${esc(t.title)} ${t.new ? '<span class="chip new">new 2026</span>' : ""}</h3><div class="sum">${esc(t.summary)}</div></span>${chev}</button>
+    <div class="t-body">
+      <ul>${t.points.map(p => `<li>${p}</li>`).join("")}</ul>
+      <div class="tip">${t.tip}</div>
+      <div class="t-foot">
+        <label class="check"><input type="checkbox" ${isDone ? "checked" : ""}> Mark as studied</label>
+        <span class="small muted">CISSP overlap: ${esc(t.cissp)}</span>
+      </div>
+    </div></div>`;
+}
+
+function render() {
+  const total = D.flatMap(d => d.subs.flatMap(s => s.topics));
+  const n = total.filter(t => done[t.id]).length;
+  document.getElementById("pctTxt").textContent = `${n}/${total.length}`;
+  document.getElementById("pctBar").style.width = (n / total.length * 100) + "%";
+
+  document.getElementById("dnav").innerHTML = D.map(d =>
+    `<a href="#d${d.n}" class="${d.n === cur && !query ? "on" : ""}"><span class="num d${d.n}c">D${d.n}</span>${esc(d.short)}</a>`).join("");
+
+  const main = document.getElementById("main");
+  if (query) {
+    const ql = query.toLowerCase();
+    const hits = D.flatMap(d => d.subs.flatMap(s => s.topics.filter(t =>
+      (t.title + " " + t.summary + " " + t.points.join(" ") + " " + t.tip).toLowerCase().includes(ql)).map(t => [t, d])));
+    main.innerHTML = `<div class="dhead" style="--dc:var(--accent)"><h1>Search</h1><p class="muted">${hits.length} topic${hits.length === 1 ? "" : "s"} matching “${esc(query)}”</p></div>` +
+      hits.map(([t, d]) => `<div style="--dc:var(--d${d.n})"><div class="small mono" style="color:var(--dc);margin:14px 0 6px">D${d.n} · ${t.id}</div>${topicHTML(t, d)}</div>`).join("");
+  } else {
+    const d = D.find(x => x.n === cur);
+    const qs = CISM_Q.filter(q => q.d === d.n).length;
+    main.style.setProperty("--dc", `var(--d${d.n})`);
+    main.innerHTML = `<div class="dhead">
+        <div class="meta"><span class="dchip d${d.n}c">DOMAIN ${d.n}</span><span class="chip">${d.weight}% of exam</span>${d.weight !== d.prev ? `<span class="chip">was ${d.prev}%</span>` : ""}</div>
+        <h1>${esc(d.name)}</h1><p class="lead" style="margin-top:8px">${esc(d.blurb)}</p>
+        <div class="btn-row" style="margin-top:14px"><a class="btn sm primary" href="exam.html?domain=${d.n}">Drill ${qs} D${d.n} questions</a><a class="btn sm" href="flashcards.html?domain=${d.n}">D${d.n} flashcards</a></div>
+      </div>` +
+      d.subs.map(s => `<div class="sub-title"><span class="mono">${s.id}</span>${esc(s.name)}</div>` + s.topics.map(t => topicHTML(t, d)).join("")).join("") +
+      `<div class="btn-row" style="margin-top:28px;justify-content:space-between">
+        ${d.n > 1 ? `<a class="btn" href="#d${d.n - 1}">← Domain ${d.n - 1}</a>` : "<span></span>"}
+        ${d.n < 4 ? `<a class="btn" href="#d${d.n + 1}">Domain ${d.n + 1} →</a>` : `<a class="btn primary" href="exam.html">Take a practice exam →</a>`}</div>`;
+  }
+}
+
+document.getElementById("main").addEventListener("click", e => {
+  const topic = e.target.closest(".topic"); if (!topic) return;
+  if (e.target.closest(".t-head")) {
+    topic.classList.toggle("open");
+    topic.querySelector(".t-head").setAttribute("aria-expanded", topic.classList.contains("open"));
+  }
+});
+document.getElementById("main").addEventListener("change", e => {
+  if (e.target.type !== "checkbox") return;
+  const topic = e.target.closest(".topic"), id = topic.dataset.id;
+  if (e.target.checked) done[id] = Date.now(); else delete done[id];
+  store.set("topics", done);
+  topic.classList.toggle("done", e.target.checked);
+  const scroll = scrollY; const open = [...document.querySelectorAll(".topic.open")].map(x => x.dataset.id);
+  render();
+  open.forEach(i => document.querySelector(`.topic[data-id="${i}"]`)?.classList.add("open"));
+  scrollTo(0, scroll);
+});
+document.getElementById("q").addEventListener("input", e => { query = e.target.value.trim(); render(); });
+document.getElementById("expandAll").onclick = e => {
+  expandAll = !expandAll; e.target.textContent = expandAll ? "Collapse all" : "Expand all"; render();
+};
+function fromHash() {
+  const m = location.hash.match(/^#d([1-4])$/); cur = m ? +m[1] : (store.get("lastDomain", 1));
+  store.set("lastDomain", cur); query = ""; document.getElementById("q").value = ""; render(); scrollTo(0, 0);
+}
+addEventListener("hashchange", fromHash);
+fromHash();
+</script>
+</body>
+</html>

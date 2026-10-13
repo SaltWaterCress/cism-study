@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cheat Sheet · CISM Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#2557d6">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+</head>
+<body>
+<main class="wrap narrow">
+  <div class="eyebrow">Last-week revision</div>
+  <h1 style="margin:8px 0 10px">CISM cheat sheet</h1>
+  <p class="lead">The definitions, formulas and comparisons that come up again and again. Read it in the last week before your exam.</p>
+
+  <section class="section">
+    <h2>Risk formulas</h2>
+    <div class="formula">SLE = Asset value (AV) × Exposure factor (EF)</div>
+    <div class="formula">ALE = SLE × ARO (annual rate of occurrence)</div>
+    <div class="formula">Control value = ALE before − ALE after − annual control cost</div>
+    <p class="small muted" style="margin-top:8px">Example: a $500k asset with 40% exposure → SLE $200k. Expected once every 4 years (ARO 0.25) → ALE $50k/yr. A control costing more than the risk it removes isn't justified.</p>
+  </section>
+
+  <section class="section">
+    <h2>Risk vocabulary</h2>
+    <div class="tbl"><table>
+      <tr><th>Term</th><th>Meaning</th><th>Set by</th></tr>
+      <tr><td><b>Risk appetite</b></td><td>How much risk the organisation is willing to take to meet its goals</td><td>Board / senior management</td></tr>
+      <tr><td><b>Risk tolerance</b></td><td>The acceptable deviation from appetite for a specific objective</td><td>Senior management</td></tr>
+      <tr><td><b>Risk capacity</b></td><td>The most loss it can absorb before failing</td><td>Objective limit</td></tr>
+      <tr><td><b>Inherent risk</b></td><td>Risk before any controls</td><td>—</td></tr>
+      <tr><td><b>Residual risk</b></td><td>Risk left after controls; must be within appetite</td><td>Accepted by risk owner</td></tr>
+      <tr><td><b>KRI</b></td><td>Early-warning indicator that a risk is rising</td><td>—</td></tr>
+      <tr><td><b>KPI</b></td><td>How well a process is performing</td><td>—</td></tr>
+      <tr><td><b>KGI</b></td><td>Whether a goal has been achieved</td><td>—</td></tr>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>Risk treatment</h2>
+    <div class="tbl"><table>
+      <tr><th>Option</th><th>What it means</th><th>Example</th></tr>
+      <tr><td><b>Mitigate</b></td><td>Reduce likelihood or impact</td><td>Add MFA, patching, training</td></tr>
+      <tr><td><b>Transfer / share</b></td><td>Move financial impact to a third party. Accountability stays with you</td><td>Cyber insurance, outsourcing</td></tr>
+      <tr><td><b>Avoid</b></td><td>Stop the activity</td><td>Don't launch in a high-risk market</td></tr>
+      <tr><td><b>Accept</b></td><td>Formally live with it, signed off by the risk owner</td><td>Legacy system with documented exception</td></tr>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>Roles</h2>
+    <div class="tbl"><table>
+      <tr><th>Role</th><th>Responsibility</th></tr>
+      <tr><td><b>Board</b></td><td>Ultimate accountability; sets risk appetite; oversight</td></tr>
+      <tr><td><b>Senior management</b></td><td>Implements governance; provides resources; owns business risk</td></tr>
+      <tr><td><b>Steering committee</b></td><td>Cross-functional prioritisation, alignment and conflict resolution</td></tr>
+      <tr><td><b>CISO / ISM</b></td><td>Designs and runs the security program; advises on risk</td></tr>
+      <tr><td><b>Data / asset owner</b></td><td>Business person accountable for an asset; classifies it, approves access</td></tr>
+      <tr><td><b>Data custodian</b></td><td>Usually IT; implements and operates protection day to day</td></tr>
+      <tr><td><b>Internal audit</b></td><td>Independent assurance that controls work</td></tr>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>Governance documents</h2>
+    <div class="tbl"><table>
+      <tr><th>Document</th><th>Answers</th><th>Mandatory?</th><th>Example</th></tr>
+      <tr><td><b>Policy</b></td><td>What &amp; why (management intent)</td><td>Yes</td><td>"Sensitive data must be encrypted"</td></tr>
+      <tr><td><b>Standard</b></td><td>Specific requirement</td><td>Yes</td><td>"Use AES-256 for data at rest"</td></tr>
+      <tr><td><b>Procedure</b></td><td>How, step by step</td><td>Yes</td><td>"Steps to enable disk encryption"</td></tr>
+      <tr><td><b>Guideline</b></td><td>Recommended practice</td><td>No</td><td>"Consider a password manager"</td></tr>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>Control functions</h2>
+    <div class="tbl"><table>
+      <tr><th>Function</th><th>Purpose</th><th>Example</th></tr>
+      <tr><td><b>Preventive</b></td><td>Stop it happening</td><td>MFA, firewall, segregation of duties</td></tr>
+      <tr><td><b>Detective</b></td><td>Spot it happening</td><td>SIEM alerts, log review, IDS</td></tr>
+      <tr><td><b>Corrective</b></td><td>Fix after it happened</td><td>Restore from backup, patch</td></tr>
+      <tr><td><b>Deterrent</b></td><td>Discourage the attempt</td><td>Warning banners, CCTV signs</td></tr>
+      <tr><td><b>Compensating</b></td><td>Alternative when the main control isn't feasible</td><td>Extra monitoring on a legacy system</td></tr>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>Recovery objectives</h2>
+    <div class="tbl"><table>
+      <tr><th>Term</th><th>Plain meaning</th></tr>
+      <tr><td><b>RTO</b></td><td>How fast the process must be back up</td></tr>
+      <tr><td><b>RPO</b></td><td>How much data (time) you can afford to lose → drives backup frequency</td></tr>
+      <tr><td><b>MTD / MTPD</b></td><td>Longest outage before the damage is unacceptable. RTO ≤ MTD</td></tr>
+      <tr><td><b>SDO</b></td><td>Minimum service level needed while in recovery mode</td></tr>
+    </table></div>
+    <p class="small muted" style="margin-top:8px">Lower RTO and RPO means higher cost. Both come from the BIA, which business process owners provide input to.</p>
+  </section>
+
+  <section class="section">
+    <h2>Recovery sites</h2>
+    <div class="tbl"><table>
+      <tr><th>Site</th><th>Ready in</th><th>Cost</th><th>Notes</th></tr>
+      <tr><td><b>Mirrored / active-active</b></td><td>Near zero</td><td>Highest</td><td>Real-time duplicate</td></tr>
+      <tr><td><b>Hot</b></td><td>Hours</td><td>High</td><td>Fully equipped, data near-current</td></tr>
+      <tr><td><b>Warm</b></td><td>Days</td><td>Medium</td><td>Partial equipment, data restore needed</td></tr>
+      <tr><td><b>Cold</b></td><td>Weeks</td><td>Low</td><td>Space, power, cooling only</td></tr>
+      <tr><td><b>Mobile</b></td><td>Days</td><td>Medium</td><td>Trailer-based, moves to location</td></tr>
+      <tr><td><b>Reciprocal</b></td><td>Uncertain</td><td>Low</td><td>Agreement with another org. Hard to enforce, capacity issues</td></tr>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>Plan testing: least to most disruptive</h2>
+    <div class="ladder"><span>Checklist review</span><i>→</i><span>Tabletop / walkthrough</span><i>→</i><span>Simulation</span><i>→</i><span>Parallel</span><i>→</i><span>Full interruption</span></div>
+  </section>
+
+  <section class="section">
+    <h2>Incident response phases</h2>
+    <div class="ladder"><span>Prepare</span><i>→</i><span>Identify / detect</span><i>→</i><span>Contain</span><i>→</i><span>Eradicate</span><i>→</i><span>Recover</span><i>→</i><span>Lessons learned</span></div>
+    <p class="small muted" style="margin-top:10px">Event = anything observable. Incident = an event that harms or threatens the organisation. Preserve evidence and chain of custody before cleaning up.</p>
+  </section>
+
+  <section class="section">
+    <h2>Plans compared</h2>
+    <div class="tbl"><table>
+      <tr><th>Plan</th><th>Focus</th><th>Owner</th></tr>
+      <tr><td><b>IRP</b></td><td>Detect, contain and recover from security incidents</td><td>Security / IR team</td></tr>
+      <tr><td><b>BCP</b></td><td>Keep critical business functions running</td><td>Business</td></tr>
+      <tr><td><b>DRP</b></td><td>Restore IT systems and data</td><td>IT</td></tr>
+      <tr><td><b>BIA</b></td><td>Input to all three: what's critical and how fast it must return</td><td>Business process owners</td></tr>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>Frameworks at a glance</h2>
+    <div class="tbl"><table>
+      <tr><th>Framework</th><th>Use it for</th></tr>
+      <tr><td><b>COBIT</b></td><td>Governance &amp; management of enterprise IT</td></tr>
+      <tr><td><b>ISO/IEC 27001 / 27002</b></td><td>Certifiable ISMS / control guidance</td></tr>
+      <tr><td><b>NIST CSF 2.0</b></td><td>Govern, Identify, Protect, Detect, Respond, Recover</td></tr>
+      <tr><td><b>TOGAF</b></td><td>Enterprise architecture method</td></tr>
+      <tr><td><b>SABSA</b></td><td>Business-driven security architecture</td></tr>
+      <tr><td><b>CMMI</b></td><td>Maturity levels for current/desired state</td></tr>
+    </table></div>
+  </section>
+
+  <section class="section">
+    <h2>Question keywords</h2>
+    <div class="tbl"><table>
+      <tr><th>Keyword</th><th>How to read it</th></tr>
+      <tr><td><b>FIRST</b></td><td>Order matters. Usually assess/understand before acting</td></tr>
+      <tr><td><b>BEST / MOST effective</b></td><td>Several answers work; pick the one with the broadest business benefit</td></tr>
+      <tr><td><b>PRIMARY</b></td><td>The main purpose or reason, not a side benefit</td></tr>
+      <tr><td><b>GREATEST concern / risk</b></td><td>The issue with the biggest business impact</td></tr>
+    </table></div>
+  </section>
+</main>
+<script src="data/domains.js"></script>
+<script src="assets/js/core.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CISM Study Hub</title>
+<meta name="description" content="Free CISM self-study: study guide for all 4 domains (2026 outline), flashcards with spaced repetition, and timed practice exams.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2557d6">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+<main class="wrap">
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">ISACA CISM · 2026 exam outline</div>
+      <h1>Study for CISM like a security manager, not a technician.</h1>
+      <p class="lead">Plain-English notes for every topic in the four domains, flashcards that bring back what you forget, and practice exams weighted like the real test.</p>
+      <div class="btn-row" style="margin-top:22px">
+        <a class="btn primary" href="study.html">Start the study guide</a>
+        <a class="btn" href="exam.html">Take a practice exam</a>
+      </div>
+      <div class="notice"><span>⚑</span><div><b>Outline change on 3 Nov 2026.</b> This site follows the updated outline: governance goes up to 18%, incident management down to 29%, and enterprise &amp; security architecture are new topics.</div></div>
+    </div>
+    <div class="card">
+      <div class="section-head" style="margin-bottom:12px"><h3>Your progress</h3><span class="small muted">saved on this device</span></div>
+      <div class="stats" id="stats"></div>
+      <div class="countdown-input small muted"><label for="examDate">Exam date</label><input type="date" id="examDate"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>Domain weightage</h2><span class="small muted">150 questions · 4 hours · pass mark 450 / 800</span></div>
+    <div class="weights" id="weights"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head"><h2>The four domains</h2><a class="small" href="study.html">Open study guide →</a></div>
+    <div class="grid g4" id="domains"></div>
+  </section>
+
+  <section class="section grid g2" style="align-items:start">
+    <div>
+      <h2>Think like a manager</h2>
+      <p class="muted small" style="margin:6px 0 8px">CISM questions often have several technically correct answers. These rules pick the one ISACA wants.</p>
+      <ol class="mindset" id="mindset"></ol>
+    </div>
+    <div>
+      <h2>A simple study plan</h2>
+      <p class="muted small" style="margin:6px 0 14px">About 6–8 weeks at 1 hour a day. Adjust to your exam date.</p>
+      <div class="tbl"><table>
+        <tr><th>Week</th><th>Focus</th></tr>
+        <tr><td class="mono">1</td><td>Domain 1 study guide + flashcards. Read the mindset rules daily.</td></tr>
+        <tr><td class="mono">2</td><td>Domain 2. Learn the risk formulas and appetite / tolerance / capacity.</td></tr>
+        <tr><td class="mono">3–4</td><td>Domain 3 (the biggest). Spend extra time on architecture, controls and vendors.</td></tr>
+        <tr><td class="mono">5</td><td>Domain 4. BIA, RTO/RPO, recovery sites, test types, IR phases.</td></tr>
+        <tr><td class="mono">6</td><td>Domain drills on weak areas. Review every wrong answer's explanation.</td></tr>
+        <tr><td class="mono">7–8</td><td>Full mock exams under time pressure. Aim for 75%+ before booking.</td></tr>
+      </table></div>
+    </div>
+  </section>
+
+</main>
+<script src="data/domains.js"></script>
+<script src="data/questions-d1.js"></script><script src="data/questions-d2.js"></script><script src="data/questions-d3.js"></script><script src="data/questions-d4.js"></script>
+<script src="data/cards-d1.js"></script><script src="data/cards-d2.js"></script><script src="data/cards-d3.js"></script><script src="data/cards-d4.js"></script>
+<script src="assets/js/core.js"></script>
+<script>
+const D = CISM_DOMAINS;
+const done = store.get("topics", {});
+const allTopics = D.flatMap(d => d.subs.flatMap(s => s.topics));
+const doneCount = allTopics.filter(t => done[t.id]).length;
+const fc = store.get("fc", {});
+const mastered = CISM_CARDS.filter(c => (fc[c.id] || {}).box >= 4).length;
+const hist = store.get("history", []);
+const best = hist.length ? Math.max(...hist.map(h => h.pct)) : null;
+
+function daysLeft() {
+  const d = store.get("examDate", "");
+  if (!d) return "—";
+  const n = Math.ceil((new Date(d + "T09:00") - new Date()) / 864e5);
+  return n < 0 ? "done" : n;
+}
+function renderStats() {
+  document.getElementById("stats").innerHTML = [
+    [`${doneCount}<span class="muted small">/${allTopics.length}</span>`, "topics studied"],
+    [`${mastered}<span class="muted small">/${CISM_CARDS.length}</span>`, "flashcards mastered"],
+    [best == null ? "—" : best + "%", "best practice score"],
+    [daysLeft(), "days to exam"]
+  ].map(s => `<div class="stat"><div class="v">${s[0]}</div><div class="l">${s[1]}</div></div>`).join("");
+}
+const di = document.getElementById("examDate");
+di.value = store.get("examDate", "");
+di.onchange = () => { store.set("examDate", di.value); renderStats(); };
+renderStats();
+
+document.getElementById("weights").innerHTML = D.map(d =>
+  `<div style="flex:${d.weight};background:var(--d${d.n})" title="${esc(d.name)}">${d.weight}%</div>`).join("");
+document.getElementById("legend").innerHTML = D.map(d =>
+  `<div class="k"><span class="sw" style="background:var(--d${d.n})"></span><span><b>D${d.n}</b> ${esc(d.short)}<br><span class="muted small">${d.weight}% ${d.weight !== d.prev ? `(was ${d.prev}%)` : "(unchanged)"}</span></span></div>`).join("");
+
+document.getElementById("domains").innerHTML = D.map(d => {
+  const ts = d.subs.flatMap(s => s.topics), n = ts.filter(t => done[t.id]).length;
+  const qs = CISM_Q.filter(q => q.d === d.n).length;
+  return `<a class="card link dcard" style="--dc:var(--d${d.n})" href="study.html#d${d.n}">
+    <div class="top"><span class="dchip d${d.n}c">DOMAIN ${d.n}</span><span class="w">${d.weight}%</span></div>
+    <h3>${esc(d.name)}</h3><p>${esc(d.blurb)}</p>
+    <div class="mini"><span>${n}/${ts.length} topics</span><span>${qs} questions</span></div>
+    <div class="bar"><i style="width:${ts.length ? n / ts.length * 100 : 0}%;background:var(--d${d.n})"></i></div></a>`;
+}).join("");
+
+document.getElementById("mindset").innerHTML = CISM_MINDSET.map(m => `<li><div><b>${esc(m[0])}</b><span>${esc(m[1])}</span></div></li>`).join("");
+</script>
+</body>
+</html>

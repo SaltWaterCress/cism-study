@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards · CISM Study Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#2557d6">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+</head>
+<body>
+<main class="wrap narrow">
+  <div class="section-head" style="align-items:flex-end">
+    <div>
+      <div class="eyebrow">Spaced repetition</div>
+      <h1 style="margin-top:8px">Flashcards</h1>
+      <p class="muted" style="margin-top:6px;max-width:56ch">Cards you know come back less often; cards you miss come back tomorrow. A card is <b>mastered</b> once it reaches box 4.</p>
+    </div>
+    <div class="boxes" id="boxes" title="Cards in each Leitner box"></div>
+  </div>
+
+  <div class="fc-top">
+    <div class="seg" id="dseg"></div>
+    <div class="seg" id="mseg"><button data-m="due">Due today</button><button data-m="all">All cards</button></div>
+  </div>
+
+  <div id="deck"></div>
+  <p class="small muted" style="margin-top:14px;text-align:center">Keys: <span class="mono">Space</span> flip · <span class="mono">1</span> again · <span class="mono">2</span> got it · <span class="mono">←</span> back</p>
+  <div style="text-align:center;margin-top:20px"><button class="btn sm" id="reset">Reset flashcard progress</button></div>
+</main>
+<script src="data/domains.js"></script>
+<script src="data/cards-d1.js"></script><script src="data/cards-d2.js"></script><script src="data/cards-d3.js"></script><script src="data/cards-d4.js"></script>
+<script src="assets/js/core.js"></script>
+<script>
+const INTERVAL = [0, 0, 1, 3, 7, 16, 35]; // days until next review, by box (1-6)
+let st = store.get("fc", {});
+const qp = new URLSearchParams(location.search);
+let dom = +qp.get("domain") || 0, mode = store.get("fcMode", "due"), queue = [], i = 0, flipped = false, history = [];
+
+const now = () => Date.now();
+const isDue = c => { const s = st[c.id]; return !s || s.due <= now(); };
+function build() {
+  let cards = CISM_CARDS.filter(c => !dom || c.d === dom);
+  if (mode === "due") cards = cards.filter(isDue);
+  // unseen and low-box cards first, shuffled within box
+  queue = shuffle(cards).sort((a, b) => ((st[a.id] || {}).box || 0) - ((st[b.id] || {}).box || 0));
+  i = 0; flipped = false; history = [];
+  render();
+}
+function renderBoxes() {
+  const scope = CISM_CARDS.filter(c => !dom || c.d === dom);
+  const counts = [0, 0, 0, 0, 0, 0, 0];
+  scope.forEach(c => counts[(st[c.id] || {}).box || 0]++);
+  const max = Math.max(1, ...counts);
+  const labels = ["new", "1", "2", "3", "4", "5", "6"];
+  document.getElementById("boxes").innerHTML = counts.map((n, b) =>
+    `<div><div class="b" style="height:${4 + n / max * 46}px;${b === 0 ? "background:var(--faint)" : b >= 4 ? "background:var(--good)" : ""}"></div>${labels[b]}<br><b>${n}</b></div>`).join("");
+}
+function render() {
+  renderBoxes();
+  document.getElementById("dseg").innerHTML = ["All", "D1", "D2", "D3", "D4"].map((l, k) =>
+    `<button data-d="${k}" class="${k === dom ? "on" : ""}">${l}</button>`).join("");
+  document.querySelectorAll("#mseg button").forEach(b => b.classList.toggle("on", b.dataset.m === mode));
+  const deck = document.getElementById("deck");
+  if (i >= queue.length) {
+    const left = CISM_CARDS.filter(c => (!dom || c.d === dom) && isDue(c)).length;
+    deck.innerHTML = `<div class="empty"><h2>${queue.length ? "Session complete" : "Nothing due right now"}</h2>
+      <p class="muted" style="margin:8px 0 18px">${queue.length ? `You reviewed ${queue.length} card${queue.length > 1 ? "s" : ""}. ` : ""}${left ? left + " card(s) are still due." : "Come back tomorrow for the next batch, or study all cards now."}</p>
+      <div class="btn-row" style="justify-content:center">${left ? '<button class="btn primary" onclick="build()">Continue</button>' : ""}<button class="btn" onclick="mode=\'all\';store.set(\'fcMode\',mode);build()">Study all cards</button></div></div>`;
+    return;
+  }
+  const c = queue[i], s = st[c.id] || {}, d = dname(c.d);
+  deck.innerHTML = `
+    <div class="mini"><span>Card ${i + 1} of ${queue.length}</span><span>${s.box ? "Box " + s.box : "New card"}</span></div>
+    <div class="bar"><i style="width:${i / queue.length * 100}%"></i></div>
+    <div class="flip${flipped ? " on" : ""}" id="flip" role="button" tabindex="0" aria-label="Flip card">
+      <div class="flip-in">
+        <div class="face"><div class="fhead"><span class="dchip d${c.d}c">D${c.d}</span><span class="small muted">${esc(d.short)}</span></div>
+          <div class="fq">${c.q}</div><div class="hint">Tap or press Space to reveal</div></div>
+        <div class="face back"><div class="fhead"><span class="dchip d${c.d}c">D${c.d}</span><span class="small muted">Answer</span></div>
+          <div class="fa">${c.a}</div></div>
+      </div>
+    </div>
+    <div class="fc-actions"><button class="btn again" onclick="mark(false)" ${flipped ? "" : "disabled"}>Again <span class="mono small">1</span></button>
+      <button class="btn knew" onclick="mark(true)" ${flipped ? "" : "disabled"}>Got it <span class="mono small">2</span></button></div>`;
+  document.getElementById("flip").onclick = flip;
+}
+function flip() { flipped = !flipped; document.getElementById("flip").classList.toggle("on", flipped); document.querySelectorAll(".fc-actions .btn").forEach(b => b.disabled = !flipped); }
+function mark(ok) {
+  const c = queue[i]; const prev = st[c.id] ? { ...st[c.id] } : null;
+  const box = ok ? Math.min(6, ((st[c.id] || {}).box || 0) + 1) : 1;
+  st[c.id] = { box, due: now() + INTERVAL[box] * 864e5 - 36e5 };
+  store.set("fc", st);
+  history.push([c.id, prev]);
+  if (!ok && mode === "due") queue.push(c); // see it again this session
+  i++; flipped = false; render();
+}
+function back() {
+  if (!history.length) return;
+  const [id, prev] = history.pop();
+  if (prev) st[id] = prev; else delete st[id];
+  store.set("fc", st); i--; flipped = false; render();
+}
+document.getElementById("dseg").onclick = e => { const b = e.target.closest("button"); if (!b) return; dom = +b.dataset.d; build(); };
+document.getElementById("mseg").onclick = e => { const b = e.target.closest("button"); if (!b) return; mode = b.dataset.m; store.set("fcMode", mode); build(); };
+document.getElementById("reset").onclick = () => { if (confirm("Reset all flashcard progress?")) { st = {}; store.set("fc", st); build(); } };
+addEventListener("keydown", e => {
+  if (e.target.matches("input,select,textarea")) return;
+  if (e.code === "Space" || e.key === "Enter") { if (document.getElementById("flip")) { e.preventDefault(); flip(); } }
+  else if (e.key === "1" && flipped) mark(false);
+  else if (e.key === "2" && flipped) mark(true);
+  else if (e.key === "ArrowLeft") back();
+});
+build();
+</script>
+</body>
+</html>
