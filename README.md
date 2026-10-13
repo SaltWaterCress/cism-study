@@ -2,7 +2,7 @@
 
 A free, self-hosted study site for the **ISACA CISM** exam. It follows the **updated exam outline that takes effect on 3 November 2026**.
 
-**Live site:** `https://<your-github-username>.github.io/cism-study/` (after you turn on GitHub Pages, see below)
+**Live site:** `https://SaltWaterCress.github.io/cism-study/` (after you turn on GitHub Pages, see below)
 
 ## What's inside
 
@@ -32,11 +32,11 @@ New topics in the 2026 outline: **enterprise architecture** and **information se
 1. Create an empty repo on GitHub called `cism-study`. Don't add a README.
 2. From this folder, run:
    ```bash
-   git remote add origin https://github.com/<your-username>/cism-study.git
+   git remote add origin https://github.com/SaltWaterCress/cism-study.git
    git push -u origin main
    ```
 3. On GitHub, go to **Settings → Pages**. Set **Source** to *Deploy from a branch*, **Branch** to `main`, and the folder to `/ (root)`, then click **Save**.
-4. After about a minute the site is live at `https://<your-username>.github.io/cism-study/`.
+4. After about a minute the site is live at `https://SaltWaterCress.github.io/cism-study/`.
 
 To preview locally, run `python3 -m http.server 8000` in this folder and open http://localhost:8000. You can also open `index.html` directly; everything except offline mode works that way.
 
